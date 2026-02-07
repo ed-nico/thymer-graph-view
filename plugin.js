@@ -7,16 +7,24 @@
 
 const GRAPH_CSS = `
   .gv-wrapper {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
   }
 
   .gv-canvas-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
-    position: relative;
   }
 
   .gv-canvas {
@@ -1101,11 +1109,12 @@ class GraphRenderer {
     this._ensureRunning();
   }
 
-  updateVisibility(showTags, showOrphans) {
+  updateVisibility(showTags, showOrphans, showJournal) {
     for (const n of this.sim.nodes) {
       n._hidden = false;
       if (n.isTag && !showTags) n._hidden = true;
       if (n.isOrphan && !showOrphans) n._hidden = true;
+      if (n.isJournal && !showJournal) n._hidden = true;
     }
     this._needsRender = true;
     this._ensureRunning();
@@ -1203,15 +1212,22 @@ class GraphControls {
       // Toggles
       this._addToggle(body, "Tags", true, (checked) => {
         this._showTags = checked;
-        this.renderer.updateVisibility(this._showTags, this._showOrphans);
+        this.renderer.updateVisibility(this._showTags, this._showOrphans, this._showJournal);
       });
       this._showTags = true;
 
       this._addToggle(body, "Orphans", true, (checked) => {
         this._showOrphans = checked;
-        this.renderer.updateVisibility(this._showTags, this._showOrphans);
+        this.renderer.updateVisibility(this._showTags, this._showOrphans, this._showJournal);
       });
       this._showOrphans = true;
+
+      // NEW: Journal toggle
+      this._addToggle(body, "Journal", true, (checked) => {
+        this._showJournal = checked;
+        this.renderer.updateVisibility(this._showTags, this._showOrphans, this._showJournal);
+      });
+      this._showJournal = true;
     });
 
     // Display section
@@ -1500,7 +1516,7 @@ class Plugin extends AppPlugin {
     // Create controls
     this._controls = new GraphControls(this._wrapper, this._renderer, this._simulation, this.ui);
     this._controls.setStats(
-      nodes.filter(n => !n.isTag).length,
+      nodes.filter(n => !n.isTag && !n.isJournal).length,
       edges.length
     );
 
@@ -1542,6 +1558,7 @@ class Plugin extends AppPlugin {
 
         const records = await collection.getAllRecords();
         const collectionName = collection.getName();
+        const isJournal = collection.isJournalPlugin();
 
         for (const record of records) {
           if (version !== this._buildVersion) return;
@@ -1555,6 +1572,7 @@ class Plugin extends AppPlugin {
               guid,
               title,
               collectionName,
+              isJournal: isJournal,
               x: 0, y: 0, vx: 0, vy: 0, fx: null, fy: null,
               linkCount: 0,
               isOrphan: false,
@@ -1591,6 +1609,7 @@ class Plugin extends AppPlugin {
                       guid: tagKey,
                       title: `#${seg.text}`,
                       collectionName: "",
+                      isJournal: false,
                       x: 0, y: 0, vx: 0, vy: 0, fx: null, fy: null,
                       linkCount: 0,
                       isOrphan: false,
