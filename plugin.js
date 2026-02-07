@@ -713,6 +713,11 @@ class GraphRenderer {
     }
   }
 
+  requestRedraw() {
+    this._needsRender = true;
+    this._ensureRunning();
+  }
+
   _screenToWorld(sx, sy) {
     const rect = this.canvas.getBoundingClientRect();
     const cx = rect.width / 2;
@@ -1213,9 +1218,11 @@ class GraphControls {
     this._buildSection(el, "Display", "display", (body) => {
       this._addToggle(body, "Labels", this.renderer.showLabels, (checked) => {
         this.renderer.showLabels = checked;
+        this.renderer.requestRedraw();
       });
       this._addToggle(body, "Arrows", this.renderer.showArrows, (checked) => {
         this.renderer.showArrows = checked;
+        this.renderer.requestRedraw();
       });
       this._addButton(body, "Reset View", () => {
         this.renderer.centerGraph();
@@ -1227,15 +1234,18 @@ class GraphControls {
       this._addSlider(body, "Center", 0, 1, this.simulation.centerForce, 0.01, (v) => {
         this.simulation.centerForce = v;
         this.simulation.reheat();
+        this.renderer.requestRedraw();
       });
       this._addSlider(body, "Repel", 0, 100, this.simulation.repelForce, 1, (v) => {
         this.simulation.repelForce = v;
         this.simulation.reheat();
+        this.renderer.requestRedraw();
       });
 
       this._addSlider(body, "Link Dist", 10, 300, this.simulation.linkDistance, 5, (v) => {
         this.simulation.linkDistance = v;
         this.simulation.reheat();
+        this.renderer.requestRedraw();
       });
     });
   }
