@@ -2,6 +2,8 @@
 
 A [Thymer](https://thymer.com) plugin that renders an interactive force-directed graph of all your notes, references, and tags.
 
+<img width="2240" height="1510" alt="CleanShot 2026-02-07 at 09 47 13@2x" src="https://github.com/user-attachments/assets/4c9d6801-a2b8-45dd-a77f-349959b114ab" />
+
 ## Features
 
 - **Force-Directed Layout** - Notes arrange themselves based on their connections using a physics simulation
