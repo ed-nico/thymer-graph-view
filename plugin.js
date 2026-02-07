@@ -7,14 +7,10 @@
 
 const GRAPH_CSS = `
   .gv-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
+    background: var(--bg-default);
   }
 
   .gv-canvas-area {
@@ -1700,6 +1696,11 @@ class Plugin extends AppPlugin {
         rootId: guid,
         workspaceGuid: workspaceGuid,
       });
+      // Ensure the panel has an opaque background
+      const panelEl = targetPanel.getElement();
+      if (panelEl) {
+        panelEl.style.background = "var(--bg-default)";
+      }
       this.ui.setActivePanel(targetPanel);
     }
   }
